@@ -415,6 +415,6 @@ This project is licensed under the MIT License.
 **Anupam Singh**
 
 * GitHub: https://github.com/ANUPAM4545
-* LinkedIn: Add your LinkedIn profile here
+* LinkedIn:https://www.linkedin.com/in/anupam-singh-415999253/
 
 
