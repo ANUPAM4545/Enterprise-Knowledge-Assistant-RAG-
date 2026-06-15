@@ -1,238 +1,422 @@
 # Enterprise Knowledge Assistant (RAG)
 
-An enterprise-ready Retrieval-Augmented Generation (RAG) dashboard that allows organizations to search and ask questions across employee handbooks, standard operating procedures, manuals, compliance documents, and research papers.
+Production-ready Retrieval-Augmented Generation (RAG) platform built with **React, FastAPI, ChromaDB, and Gemini**, featuring **page-aware citations**, **multi-document search**, and a premium enterprise workspace.
 
-The assistant retrieves relevant context chunks from uploaded PDFs and generates accurate, grounded responses from Gemini 2.5 Flash, complete with page-specific citation references.
-
----
-
-## Key Features
-- **Multi-Document Support**: Upload multiple PDFs simultaneously.
-- **Strict Grounding**: Hallucinations are suppressed; the AI answers strictly using retrieved context or explicitly states if information is unavailable.
-- **Page-Aware Citations**: Inline numeric citations (e.g. `[1]`, `[2]`) map directly to original pages of specific files.
-- **Interactive Citation Inspector**: Click citations to view the exact text snippets, document source, page number, and similarity score.
-- **Query Filters**: Include/exclude specific uploaded documents in search queries.
-- **Sleek Premium UI**: Modern slate-obsidian styling with glassmorphism layout, drag-and-drop loading, upload progress indicator, and shimmer loading states.
+> Transform static PDFs into an intelligent, searchable knowledge base.
 
 ---
 
-## Tech Stack
-### Frontend
-- **Framework**: React 18, TypeScript, Vite
-- **Styling**: Tailwind CSS
-- **Icons**: Lucide React
-- **HTTP Client**: Axios
+## 🌐 Live Demo
 
-### Backend
-- **Framework**: Python 3.9, FastAPI, Uvicorn
-- **PDF Extraction**: PyPDF
-- **Vector Database**: ChromaDB
-- **LLM**: Gemini 2.5 Flash
-- **Embeddings Model**: Gemini text-embedding-004
+* **Application:** https://enterprise-knowledge-assistant-rag.vercel.app
 
 ---
 
-## System Architecture
+## ✨ Features
+
+### Core Capabilities
+
+* Upload and index multiple PDF documents
+* Conversational question answering
+* Semantic search powered by vector embeddings
+* Multi-document filtering
+* Persistent vector storage
+* Page-specific citations
+* Interactive citation inspection
+* Chat history management
+* Strict context grounding to reduce hallucinations
+
+### User Experience
+
+* Premium glassmorphism UI
+* Drag-and-drop PDF upload
+* Real-time indexing status
+* Upload progress indicators
+* Responsive design
+* Dark mode workspace
+* Authentication with Google Sign-In
+
+### Developer Features
+
+* Dockerized architecture
+* Modular FastAPI backend
+* Persistent ChromaDB storage
+* Environment-based configuration
+* Ready for LangSmith tracing
+* Ready for RAGAS evaluation
+
+---
+
+## 📌 Problem Statement
+
+Organizations store critical information across:
+
+* Employee handbooks
+* Standard operating procedures (SOPs)
+* Product manuals
+* Compliance documents
+* Research papers
+* Internal knowledge bases
+
+Finding information within these documents is time-consuming and inefficient.
+
+This project enables users to upload documents and ask questions in natural language. The system retrieves semantically relevant content and generates accurate, grounded responses with traceable citations.
+
+---
+
+## 🖼️ Screenshots
+
+### Landing Page
+
+Modern enterprise-focused landing page introducing the platform's capabilities.
+
+![Landing Page](./assets/landing-page.png)
+
+---
+
+### Authentication
+
+Secure sign-in experience with email/password and Google authentication.
+
+![Authentication](./assets/authentication.png)
+
+---
+
+### Knowledge Workspace
+
+Upload documents, manage the document library, and interact with your knowledge base.
+
+![Workspace](./assets/workspace-overview.png)
+
+---
+
+### Citation Inspection
+
+Every response includes page-aware citations that users can inspect and verify.
+
+![Citation System](./assets/citation-system.png)
+
+---
+
+## 🏗️ System Architecture
 
 ```text
-                 ┌────────────────────┐
-                 │    React UI Client │
-                 │    (Vite / TS)     │
-                 └─────────┬──────────┘
-                           │ POST /upload, /chat, /documents
-                           ▼
-                 ┌────────────────────┐
-                 │   FastAPI Backend  │
-                 └─────────┬──────────┘
-                           │
-          ┌────────────────┼────────────────┐
-          ▼                ▼                ▼
-┌────────────────┐ ┌────────────────┐ ┌────────────────┐
-│ Document Loader│ │ RAG Pipeline   │ │ Vector Service │
-│ (PyPDF extractor)│ (Context builder)│ (Chroma DB client)
-└────────────────┘ └────────────────┘ └────────────────┘
-                           │                        │
-                           ▼                        ▼
-               ┌──────────────────────┐ ┌──────────────────────┐
-               │  Gemini 2.5 Flash    │ │ Gemini Embedding     │
-               │  Generative Model    │ │ text-embedding-004   │
-               └──────────────────────┘ └──────────────────────┘
+                  ┌─────────────────────┐
+                  │    React Frontend   │
+                  │ (Vite + TypeScript) │
+                  └──────────┬──────────┘
+                             │
+                             ▼
+
+                  ┌─────────────────────┐
+                  │   FastAPI Backend   │
+                  └──────────┬──────────┘
+                             │
+
+      ┌──────────────────────┼──────────────────────┐
+      ▼                      ▼                      ▼
+
+┌───────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│ PDF Processor │  │  RAG Pipeline   │  │  Vector Store   │
+│    (PyPDF)    │  │   (LangChain)   │  │    ChromaDB     │
+└───────────────┘  └────────┬────────┘  └────────┬────────┘
+                            │                    │
+                            ▼                    ▼
+
+                 ┌─────────────────────┐
+                 │ Gemini Embeddings   │
+                 │ text-embedding-004  │
+                 └──────────┬──────────┘
+                            │
+                            ▼
+
+                 ┌─────────────────────┐
+                 │  Gemini 2.5 Flash   │
+                 └──────────┬──────────┘
+                            │
+                            ▼
+
+                 ┌─────────────────────┐
+                 │ Answer + Citations  │
+                 └─────────────────────┘
 ```
 
 ---
 
-## Directory Structure
+## 🔄 RAG Pipeline
+
+1. User uploads one or more PDF documents.
+2. PDFs are parsed page by page.
+3. Each page is split into semantic chunks.
+4. Embeddings are generated using Gemini embeddings.
+5. Chunks are stored in ChromaDB.
+6. User submits a question.
+7. Relevant chunks are retrieved using semantic similarity.
+8. Gemini generates an answer using only retrieved context.
+9. The response is returned with page-specific citations.
+
+---
+
+## 📖 Citation Strategy
+
+To ensure accurate references:
+
+* Documents are processed page by page.
+* Chunks never span multiple pages.
+* Each chunk stores metadata:
+
+```json
+{
+  "document_name": "employee_handbook.pdf",
+  "page_number": 12,
+  "chunk_index": 4
+}
+```
+
+This guarantees reliable page-level citations.
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+* React 18
+* TypeScript
+* Vite
+* Tailwind CSS
+* Axios
+* Lucide React
+
+### Backend
+
+* Python 3.9+
+* FastAPI
+* Uvicorn
+* Pydantic
+
+### AI & RAG
+
+* Gemini 2.5 Flash
+* Gemini text-embedding-004
+* LangChain
+
+### Data Layer
+
+* ChromaDB
+* PyPDF
+
+### DevOps
+
+* Docker
+* Docker Compose
+* Vercel
+
+---
+
+## 📂 Project Structure
+
 ```text
 enterprise-knowledge-assistant/
+
 ├── backend/
 │   ├── app/
 │   │   ├── api/
-│   │   │   ├── __init__.py
-│   │   │   └── endpoints.py
 │   │   ├── models/
-│   │   │   ├── __init__.py
-│   │   │   └── schemas.py
 │   │   ├── rag/
-│   │   │   ├── __init__.py
-│   │   │   └── pipeline.py
 │   │   ├── services/
-│   │   │   ├── __init__.py
-│   │   │   ├── document.py
-│   │   │   └── vector.py
-│   │   ├── __init__.py
 │   │   ├── config.py
 │   │   └── main.py
 │   ├── requirements.txt
 │   └── Dockerfile
+│
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
 │   │   ├── services/
-│   │   │   └── api.ts
-│   │   ├── App.css
 │   │   ├── App.tsx
-│   │   ├── index.css
 │   │   └── main.tsx
-│   ├── Dockerfile
 │   ├── package.json
-│   └── tailwind.config.js
-├── uploads/              # Local storage for raw PDF uploads
-├── vector_store/         # SQLite-based local ChromaDB vector store
-├── .env.example
+│   └── Dockerfile
+│
+├── uploads/
+├── vector_store/
+├── assets/
 ├── docker-compose.yml
+├── .env.example
 └── README.md
 ```
 
 ---
 
-## API Endpoints
+## 🔌 API Endpoints
 
-### 1. Health Status
-- **Method & Route**: `GET /api/health`
-- **Response**:
-  ```json
-  {
-    "status": "healthy",
-    "vector_store_count": 42,
-    "api_key_configured": true
-  }
-  ```
-
-### 2. Upload Documents
-- **Method & Route**: `POST /api/upload`
-- **Request**: Multipart Form Data (`files`: List of PDF files)
-- **Response**:
-  ```json
-  {
-    "message": "Successfully processed 1 document(s).",
-    "documents": [
-      {
-        "filename": "employee_handbook.pdf",
-        "size_bytes": 1048576,
-        "upload_time": "2026-06-15T10:30:00.000000",
-        "chunk_count": 15
-      }
-    ]
-  }
-  ```
-
-### 3. Ask RAG Query
-- **Method & Route**: `POST /api/chat`
-- **Request**:
-  ```json
-  {
-    "messages": [
-      {"role": "user", "content": "What is the policy on annual leave?"}
-    ],
-    "active_documents": ["employee_handbook.pdf"]
-  }
-  ```
-- **Response**:
-  ```json
-  {
-    "answer": "According to the handbook, employees receive 20 days of paid annual leave [1]. Leave must be requested at least two weeks in advance [2].",
-    "citations": [
-      {
-        "document_name": "employee_handbook.pdf",
-        "page": 4,
-        "snippet": "Full-time employees accrue paid annual leave at a rate of 20 days per fiscal year...",
-        "score": 0.865
-      },
-      {
-        "document_name": "employee_handbook.pdf",
-        "page": 4,
-        "snippet": "Requests for leave must be submitted via the HR portal at least two weeks prior...",
-        "score": 0.812
-      }
-    ]
-  }
-  ```
-
-### 4. Delete Document
-- **Method & Route**: `DELETE /api/documents/{filename}`
-- **Response**:
-  ```json
-  {
-    "message": "Successfully deleted document 'employee_handbook.pdf' from index and storage."
-  }
-  ```
+| Method | Endpoint                    | Description             |
+| ------ | --------------------------- | ----------------------- |
+| GET    | `/api/health`               | Health check            |
+| POST   | `/api/upload`               | Upload documents        |
+| POST   | `/api/chat`                 | Ask questions           |
+| GET    | `/api/documents`            | List uploaded documents |
+| DELETE | `/api/documents/{filename}` | Delete a document       |
+| GET    | `/api/history`              | Retrieve chat history   |
 
 ---
 
-## Getting Started
+## ⚙️ Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+Get your API key from Google AI Studio.
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (v18+)
-- Python (v3.9+)
-- Google Gemini API Key
 
-### Configuration
-1. Clone the project.
-2. In the project root, duplicate `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-3. Open `.env` and fill in your `GEMINI_API_KEY`:
-   ```env
-   GEMINI_API_KEY=your_actual_gemini_api_key_from_google_ai_studio
-   ```
+* Node.js 18+
+* Python 3.9+
+* Docker (optional)
+* Gemini API key
 
-### Option A: Running Locally
+---
 
-#### 1. Start the Backend
+### Run Backend
+
 ```bash
 cd backend
-python3 -m venv .venv
+
+python -m venv .venv
+
 source .venv/bin/activate
+
 pip install -r requirements.txt
+
 uvicorn app.main:app --reload --port 8000
 ```
-The FastAPI API doc will be available at `http://localhost:8000/docs`.
 
-#### 2. Start the Frontend
-In a separate terminal:
+API documentation:
+
+```text
+http://localhost:8000/docs
+```
+
+---
+
+### Run Frontend
+
 ```bash
 cd frontend
+
 npm install
+
 npm run dev
 ```
-The React workspace will be available at `http://localhost:5173`.
+
+Application:
+
+```text
+http://localhost:5173
+```
 
 ---
 
-### Option B: Running with Docker Compose
+## 🐳 Run with Docker
 
-If you have Docker and Docker Compose installed:
-1. Make sure you set your `GEMINI_API_KEY` in the root `.env` file.
-2. Run from the project root:
-   ```bash
-   docker-compose up --build
-   ```
-3. Open your browser to `http://localhost:5173`.
+```bash
+docker-compose up --build
+```
+
+Open:
+
+```text
+http://localhost:5173
+```
 
 ---
 
-## Evaluation Metrics & Observability
-To monitor and evaluate response truthfulness and context recall, you can optionally integrate observability packages:
-- **LangSmith**: Set environment variables `LANGCHAIN_TRACING_V2=true` and `LANGCHAIN_API_KEY` to trace document embedding, chunk retrieval, and completion prompt calls.
-- **Ragas**: Install `ragas` library to run context recall, faithfulness, and answer relevance automated evaluations.
+## 📊 Performance Configuration
+
+| Parameter       | Value              |
+| --------------- | ------------------ |
+| Chunk Size      | 1000               |
+| Chunk Overlap   | 200                |
+| Retrieval Top-K | 5                  |
+| Embedding Model | text-embedding-004 |
+| LLM             | Gemini 2.5 Flash   |
+
+---
+
+## 📈 Evaluation & Observability
+
+### LangSmith
+
+Track:
+
+* Prompt execution
+* Retrieval quality
+* Latency
+* Token usage
+
+### RAGAS
+
+Evaluate:
+
+* Faithfulness
+* Answer relevance
+* Context precision
+* Context recall
+
+---
+
+## 🎯 Design Decisions
+
+* Used page-level chunking to ensure citation accuracy.
+* Selected ChromaDB for lightweight persistent vector storage.
+* Separated embedding and generation models for flexibility.
+* Implemented strict grounding prompts to reduce hallucinations.
+* Prioritized a polished single-user experience for the MVP.
+
+---
+
+## 🔮 Future Enhancements
+
+* Hybrid search (BM25 + vector search)
+* Reranking
+* Streaming responses
+* LangGraph agents
+* PostgreSQL + pgvector
+* Redis caching
+* LangSmith tracing
+* Advanced analytics dashboard
+* Multi-user workspaces
+* Role-based access control
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome.
+
+Feel free to fork the repository and submit a pull request.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 👨‍💻 Author
+
+**Anupam Singh**
+
+* GitHub: https://github.com/ANUPAM4545
+* LinkedIn: Add your LinkedIn profile here
+
+
