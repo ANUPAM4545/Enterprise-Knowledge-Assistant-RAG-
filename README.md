@@ -70,7 +70,9 @@ This project enables users to upload documents and ask questions in natural lang
 
 Modern enterprise-focused landing page introducing the platform's capabilities.
 
-![Landing Page](./assets/landing-page.png)
+<img width="1453" height="806" alt="Screenshot 2026-06-15 at 12 42 27 PM" src="https://github.com/user-attachments/assets/0890ae18-7dc1-4e83-b563-b7db6d73e7ec" />
+
+
 
 ---
 
@@ -78,7 +80,9 @@ Modern enterprise-focused landing page introducing the platform's capabilities.
 
 Secure sign-in experience with email/password and Google authentication.
 
-![Authentication](./assets/authentication.png)
+<img width="1401" height="825" alt="Screenshot 2026-06-15 at 12 21 27 PM" src="https://github.com/user-attachments/assets/512eb773-29f0-4c5d-ada1-1164613f8f2a" />
+
+
 
 ---
 
@@ -86,17 +90,11 @@ Secure sign-in experience with email/password and Google authentication.
 
 Upload documents, manage the document library, and interact with your knowledge base.
 
-![Workspace](./assets/workspace-overview.png)
+![Workspace]<img width="1468" height="818" alt="Screenshot 2026-06-15 at 12 24 00 PM" src="https://github.com/user-attachments/assets/2d73d3d7-7413-4510-8683-a9cd1bc5ed26" />
+
 
 ---
 
-### Citation Inspection
-
-Every response includes page-aware citations that users can inspect and verify.
-
-![Citation System](./assets/citation-system.png)
-
----
 
 ## 🏗️ System Architecture
 
