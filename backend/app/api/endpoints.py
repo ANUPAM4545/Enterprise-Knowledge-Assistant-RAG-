@@ -442,3 +442,51 @@ def send_contact_message(request: ContactRequest, background_tasks: BackgroundTa
         return {"message": "Your message has been sent successfully. Anupam Singh will be notified."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to record contact message: {str(e)}")
+
+@router.get("/test-email")
+def test_email():
+    """
+    Synchronous test route to return detailed SMTP tracebacks.
+    """
+    smtp_server = os.getenv("SMTP_SERVER")
+    smtp_port = os.getenv("SMTP_PORT", "587")
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_password = os.getenv("SMTP_PASSWORD")
+    
+    status = {
+        "smtp_server": smtp_server,
+        "smtp_port": smtp_port,
+        "smtp_user": smtp_user,
+        "has_password": smtp_password is not None and len(smtp_password) > 0,
+        "result": None,
+        "error": None,
+        "traceback": None
+    }
+    
+    if not (smtp_server and smtp_user and smtp_password):
+        status["error"] = "Missing environment variables on server."
+        return status
+        
+    try:
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        
+        msg = MIMEMultipart()
+        msg['From'] = smtp_user
+        msg['To'] = "anupamsingh8095@gmail.com"
+        msg['Subject'] = "SMTP Debug Connection"
+        msg.attach(MIMEText("This is a direct synchronous test from the Render container to verify SMTP.", 'plain'))
+        
+        server = smtplib.SMTP(smtp_server, int(smtp_port), timeout=10)
+        server.starttls()
+        server.login(smtp_user, smtp_password)
+        server.sendmail(smtp_user, "anupamsingh8095@gmail.com", msg.as_string())
+        server.quit()
+        status["result"] = "Email sent successfully!"
+    except Exception as e:
+        import traceback
+        status["error"] = str(e)
+        status["traceback"] = traceback.format_exc()
+        
+    return status
