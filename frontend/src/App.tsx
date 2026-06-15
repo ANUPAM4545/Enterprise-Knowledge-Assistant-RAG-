@@ -1005,8 +1005,8 @@ export default function App() {
                     </div>
                     <div>
                       <h4 className="text-xs font-bold text-slate-200">Office Location</h4>
-                      <p className="text-[11px] text-slate-400 mt-1 leading-normal">Enterprise Intelligence Inc.</p>
-                      <p className="text-xs text-slate-300 font-semibold mt-1">San Francisco, California</p>
+                      <p className="text-[11px] text-slate-400 mt-1 leading-normal">Varanasi</p>
+                      <p className="text-xs text-slate-300 font-semibold mt-1">Uttar Pradesh, India</p>
                     </div>
                   </div>
 
