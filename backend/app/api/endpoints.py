@@ -103,6 +103,44 @@ def send_welcome_email(username: str, email_address: str):
         except Exception as mail_err:
             print(f"[WELCOME EMAIL] Failed to send real SMTP welcome email to {email_address}: {str(mail_err)}")
 
+def send_contact_email(name: str, email: str, subject: str, message: str):
+    """
+    Background task to send contact notification email via SMTP.
+    """
+    smtp_server = os.getenv("SMTP_SERVER")
+    smtp_port = os.getenv("SMTP_PORT", "587")
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_password = os.getenv("SMTP_PASSWORD")
+    
+    if smtp_server and smtp_user and smtp_password:
+        try:
+            import smtplib
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
+            
+            msg = MIMEMultipart()
+            msg['From'] = smtp_user
+            msg['To'] = "anupamsingh8095@gmail.com"
+            msg['Subject'] = f"Contact Form Submission: {subject}"
+            
+            body = (
+                f"You have received a new contact message from your RAG Knowledge Assistant website.\n\n"
+                f"Name: {name}\n"
+                f"Email: {email}\n"
+                f"Subject: {subject}\n"
+                f"Message:\n{message}\n"
+            )
+            msg.attach(MIMEText(body, 'plain'))
+            
+            server = smtplib.SMTP(smtp_server, int(smtp_port))
+            server.starttls()
+            server.login(smtp_user, smtp_password)
+            server.sendmail(smtp_user, "anupamsingh8095@gmail.com", msg.as_string())
+            server.quit()
+            print("[CONTACT INBOX] Real SMTP email notification sent to anupamsingh8095@gmail.com successfully.")
+        except Exception as mail_err:
+            print(f"[CONTACT INBOX] Failed to send real SMTP email: {str(mail_err)}")
+
 security = HTTPBearer()
 
 def get_current_user(
@@ -367,7 +405,7 @@ def delete_document(
     return {"message": f"Successfully deleted document '{filename}' from index and storage."}
 
 @router.post("/contact")
-def send_contact_message(request: ContactRequest):
+def send_contact_message(request: ContactRequest, background_tasks: BackgroundTasks):
     """
     Saves the contact message locally and logs/simulates sending email to anupamsingh8095@gmail.com.
     """
@@ -392,40 +430,14 @@ def send_contact_message(request: ContactRequest):
             
         print(f"[CONTACT INBOX] Contact form submission logged. Notification simulated for anupamsingh8095@gmail.com.")
         
-        # (Optional) Real SMTP Email Integration Block
-        smtp_server = os.getenv("SMTP_SERVER")
-        smtp_port = os.getenv("SMTP_PORT", "587")
-        smtp_user = os.getenv("SMTP_USER")
-        smtp_password = os.getenv("SMTP_PASSWORD")
-        
-        if smtp_server and smtp_user and smtp_password:
-            try:
-                import smtplib
-                from email.mime.text import MIMEText
-                from email.mime.multipart import MIMEMultipart
-                
-                msg = MIMEMultipart()
-                msg['From'] = smtp_user
-                msg['To'] = "anupamsingh8095@gmail.com"
-                msg['Subject'] = f"Contact Form Submission: {request.subject}"
-                
-                body = (
-                    f"You have received a new contact message from your RAG Knowledge Assistant website.\n\n"
-                    f"Name: {request.name}\n"
-                    f"Email: {request.email}\n"
-                    f"Subject: {request.subject}\n"
-                    f"Message:\n{request.message}\n"
-                )
-                msg.attach(MIMEText(body, 'plain'))
-                
-                server = smtplib.SMTP(smtp_server, int(smtp_port))
-                server.starttls()
-                server.login(smtp_user, smtp_password)
-                server.sendmail(smtp_user, "anupamsingh8095@gmail.com", msg.as_string())
-                server.quit()
-                print("[CONTACT INBOX] Real SMTP email notification sent to anupamsingh8095@gmail.com successfully.")
-            except Exception as mail_err:
-                print(f"[CONTACT INBOX] Failed to send real SMTP email: {str(mail_err)}")
+        # Schedule SMTP email dispatch task in the background to prevent request hanging/timeout
+        background_tasks.add_task(
+            send_contact_email,
+            request.name,
+            request.email,
+            request.subject,
+            request.message
+        )
         
         return {"message": "Your message has been sent successfully. Anupam Singh will be notified."}
     except Exception as e:
