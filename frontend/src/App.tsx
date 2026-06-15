@@ -13,7 +13,6 @@ import {
   Sparkles, 
   RefreshCw, 
   AlertCircle, 
-  ChevronRight, 
   X, 
   MessageSquare,
   CheckCircle,
@@ -23,11 +22,9 @@ import {
   Lock,
   User,
   ShieldCheck,
-  Zap,
   Globe,
   Sliders,
   LogOut,
-  ChevronDown,
   Mail,
   Heart
 } from 'lucide-react';
@@ -57,7 +54,6 @@ export default function App() {
   // Server health states
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
   const [chunkCount, setChunkCount] = useState(0);
-  const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
 
   // Auth form states
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login');
@@ -230,7 +226,6 @@ export default function App() {
       const health = await api.getHealth();
       setServerOnline(health.status === 'healthy' || health.status === 'unconfigured');
       setChunkCount(health.vector_store_count);
-      setApiKeyConfigured(health.api_key_configured);
     } catch (err) {
       setServerOnline(false);
     }
@@ -250,6 +245,14 @@ export default function App() {
     } catch (err) {
       console.error("Error listing documents:", err);
     }
+  };
+
+  const toggleDocSelection = (filename: string) => {
+    setSelectedDocs(prev => 
+      prev.includes(filename) 
+        ? prev.filter(name => name !== filename) 
+        : [...prev, filename]
+    );
   };
 
   // Auth functions
